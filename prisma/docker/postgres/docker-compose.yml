@@ -6,9 +6,9 @@ services:
     container_name: postgres_container
     build: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: '123456'
+      POSTGRES_DB: 'db_june'
       PGDATA: ${PGDATA:-/data/postgres}
     volumes:
       - postgres:${PGDATA:-/data/postgres}
