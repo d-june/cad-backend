@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String?
+  provider  Provider?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  roles     Role[]
+  Token     Token[]
+  isBlocked Boolean   @default(false) @map("is_blocked")
+
+  @@map("users")
+}
+
+model Token {
+  token     String   @unique
+  exp       DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  userAgent String   @map("user_agent")
+
+  @@map("tokens")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  slug           String
+  title          String
+  images         String[]
+  description    String
+  volume         String
+  price          String
+  color          String
+  weight         String
+  height         String
+  width          String
+  depth          String
+  burningTime    String
+  aromas         Aroma[]
+  generalGroup   String
+  specifiedGroup String
+  top            Boolean
+
+  @@map("products")
+}
+
+model Aroma {
+  id        Int      @id @default(autoincrement())
+  name      String
+  count     Int
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+
+  @@map("aromas")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Provider {
+  GOOGLE
+  YANDEX
+}
