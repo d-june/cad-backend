@@ -13,8 +13,8 @@ export class ProductsService {
 
         sendMail(query): void {
           this.mailerService.sendMail({
-            to: 'katrin.dudina.kat@gmail.com',
-            from: 'katrin.dudina.kat@gmail.com',
+            to: 'cadhome.shop@gmail.com',
+            from: 'cadhome.shop@gmail.com',
             subject: 'Новый заказ',
             text: 'welcome',
             html: `<div>Имя покупателя <b>${query.name}</b>.</div> <div>Телефон: <b>${query.phone}</b>.</div> <div>Email: <b>${query.email}</b>.</div> <div>Способ получения: <b>${query.delivery}</b>.</div>${query.delivery === 'доставка' ? `<div>Адрес: <b>${query.address}</b>.</div>` : ''} <div>Состав заказа: ${query.text}</div> <div>Сумма заказа: <b>${query.totalPrice} руб.</b></div>`

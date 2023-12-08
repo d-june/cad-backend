@@ -9,8 +9,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
     transport: {
         host: 'smtp.gmail.com',
         auth: {
-            user: 'katrin.dudina.kat@gmail.com',
-            pass: 'gzex nsax uutn iddx'
+            user: 'cadhome.shop@gmail.com',
+            pass: 'mtvn tqhe mkbw efsa'
         }
     }
 })],
