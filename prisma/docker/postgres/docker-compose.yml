@@ -6,10 +6,10 @@ services:
     container_name: postgres_container
     build: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
-      PGDATA: ${PGDATA:-/data/postgres}
+      - POSTGRES_USER: ${POSTGRES_USER}
+      - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
+      - PGDATA: ${PGDATA:-/data/postgres}
     volumes:
       - postgres:${PGDATA:-/data/postgres}
     ports:
