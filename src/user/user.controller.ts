@@ -40,7 +40,6 @@ export class UserController {
     }
 
   
-    @Public()
     @UseInterceptors(ClassSerializerInterceptor)
     @Put()
     async updateUser(@Body() body: Partial<User>) {
