@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UseInterceptors, UseGuards, Res, Req } from '@nestjs/common/decorators';
 import { ClassSerializerInterceptor } from '@nestjs/common/serializer';
 import { UserResponse } from './responses';
-import { CurrentUser, Roles } from '@common/decorators';
+import { CurrentUser, Public, Roles } from '@common/decorators';
 import { JwtPayload } from '@auth/interfaces';
 import { RolesGuard } from '@auth/guards/role.guard';
 import { Role, User } from '@prisma/client';
@@ -40,7 +40,7 @@ export class UserController {
     }
 
   
-    
+    @Public()
     @UseInterceptors(ClassSerializerInterceptor)
     @Put()
     async updateUser(@Body() body: Partial<User>) {
