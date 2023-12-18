@@ -66,6 +66,18 @@ model Aroma {
   @@map("aromas")
 }
 
+model Aromas {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  top         String
+  middle      String
+  base        String
+  image       String
+
+  @@map("aromas-list")
+}
+
 enum Role {
   ADMIN
   USER
