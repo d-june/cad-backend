@@ -1,4 +1,4 @@
-import {  IsNumber, IsString } from "class-validator";
+import {  IsInt, IsNumber, IsString } from "class-validator";
 
 export class ProductDto {
     @IsString()
@@ -9,13 +9,11 @@ export class ProductDto {
     images: string[];
     @IsString()
     description: string;
-    @IsString()
-    volume: string;
-    @IsString()
-    price: string;
-    aromas: Array<{
-        id: string, name: string, count: string, productId: string
-    }>;
+    @IsNumber()
+    volume: number;
+    @IsNumber()
+    price: number;
+    aromas: string;
     @IsString()
     group: string;
     top: boolean

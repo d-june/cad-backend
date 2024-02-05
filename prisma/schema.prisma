@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String?
-  provider  Provider?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  roles     Role[]
-  Token     Token[]
-  isBlocked Boolean   @default(false) @map("is_blocked")
+  id             String           @id @default(uuid())
+  email          String           @unique
+  password       String?
+  provider       Provider?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  roles          Role[]
+  Token          Token[]
+  isBlocked      Boolean          @default(false) @map("is_blocked")
+  ProductComment ProductComment[]
 
   @@map("users")
 }
@@ -35,35 +36,46 @@ model Token {
 }
 
 model Product {
-  id             String   @id @default(uuid())
+  id             String           @id @default(uuid())
   slug           String
   title          String
   images         String[]
   description    String
-  volume         String
-  price          String
+  form           String
+  volume         Float
+  price          Float
   color          String
-  weight         String
-  height         String
-  width          String
-  depth          String
+  weight         Float
+  height         Float
+  width          Float
+  depth          Float
   burningTime    String
-  aromas         Aroma[]
+  aroma          String
+  available      Int
   generalGroup   String
   specifiedGroup String
   top            Boolean
+  createdAt      DateTime         @default(now()) @map("createdProduct_at")
+  updatedAt      DateTime         @updatedAt @map("updatedProduct_at")
+  rating         Int
+  comments       ProductComment[]
 
   @@map("products")
 }
 
-model Aroma {
+model ProductComment {
   id        Int      @id @default(autoincrement())
-  name      String
-  count     Int
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?
+  Product   Product  @relation(fields: [productId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+  author    String
+  text      String
+  createdAt DateTime @default(now()) @map("createdComment_at")
+  updatedAt DateTime @updatedAt @map("updatedComment_at")
+  rating    Int
+  userId    String
+  productId String
 
-  @@map("aromas")
+  @@map("product-comments")
 }
 
 model Aromas {

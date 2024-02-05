@@ -7,7 +7,7 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 import {Delete, Param, Query, Request, Res, UploadedFile} from '@nestjs/common/decorators/http'
-import { Aroma, Product } from '@prisma/client';
+import { Product } from '@prisma/client';
 import { CurrentUser, Public } from '@common/decorators';
 import { join } from 'path/posix';
 import { JwtPayload } from '@auth/interfaces';
@@ -37,7 +37,6 @@ export class ProductsController {
     }
 
     @Public()
-
     @Post('new')
     async createProduct( @Body() dto: ProductDto){
 
@@ -51,8 +50,15 @@ export class ProductsController {
  
     @Public()
     @Get()
-    async findAllProducts() {
-        const products = await this.productsService.findAll()
+    async findAllProducts(@Query('currentPrice') currentPrice: string, @Query('aromas') aromas: string, @Query('volumes') volumes: string, @Query('colors') colors: string, @Query('forms') forms: string, @Query('orderBy') orderBy: string, @Query('currentPage') currentPage: string, @Query('take') take: string) {
+        const products = await this.productsService.findAll(currentPrice, aromas, volumes, colors, forms, orderBy, currentPage, take)
+        return products
+    }
+
+    @Public()
+    @Get('top')
+    async findTopProducts() {
+        const products = await this.productsService.findTopProducts()
         return products
     }
 
@@ -77,20 +83,13 @@ export class ProductsController {
         return this.productsService.updateBody(dto)
     }
 
-    @Post('aroma/create/:productId')
-    async createAroma(@Param('productId') productId: string,  @Body() aroma: Aroma){
-        return this.productsService.createAromaByProductId(productId, aroma)
+    @Public()
+    @Post('update-available/:id')
+    updateAvailableCount(@Param('id') id: string, @Body() data: number) {
+        return this.productsService.updateAvailableCount(id, data)
     }
 
-    @Post('aroma/update/:id')
-    updateAroma(@Param('id') id: string, @Body() aroma: Aroma) {
-        return this.productsService.updateAromaById(id, aroma)
-    }
 
-    @Delete('aroma/:id')
-    deleteAroma(@Param('id') id: string) {
-        return this.productsService.deleteAromaById(id)
-    }
 
     @Public()
     @Get('product-image/:imagename')
@@ -98,8 +97,10 @@ export class ProductsController {
         return of(res.sendFile(join(process.cwd(), 'uploads/productsImages/' + imagename)));
     }
 
+
+
     @Delete(':id')
-    deleteUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
+    deleteProduct(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
         return this.productsService.delete(id, user)
     }
 

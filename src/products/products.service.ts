@@ -22,14 +22,15 @@ export class ProductsService {
         }
 
 
-        // product: Partial<Product>
-        async save(product: any) {
+
+        async save(product: Partial<Product>) {
       
           const savedProduct = await this.prismaService.product.create({
             data: {
                 title: product.title,
                 slug: product.slug,
                 description: product.description,
+                form: product.form,
                 volume: product.volume,
                 price: product.price,
                 color: product.color,
@@ -38,34 +39,109 @@ export class ProductsService {
                 width: product.width,
                 depth: product.depth,
                 burningTime: product.burningTime,
-                aromas: {
-                  create: product.aromas
-                }
-                ,
+                aroma: product.aroma,
+                available: product.available,
                 generalGroup: product.generalGroup,
                 specifiedGroup: product.specifiedGroup,
-                top: product.top
+                top: product.top,
+                rating: 0,
             }
           })
-          const aromas = await this.prismaService.aroma.findMany({where: {productId: savedProduct.id}})
-            return {...savedProduct, aromas: aromas};
+
+            return savedProduct
         }
         
-       async findAll(){
-        let products = await this.prismaService.product.findMany()
+       async findAll(currentPrice, aromas, volumes, colors, forms, orderBy, currentPage = '1', take = '10'){
 
-        const productsWidthAroma = await Promise.all(products.map( async (product: any) => {
-          const res = await this.prismaService.aroma.findMany({where: {productId: product.id}})
-          return {...product, aromas: res}
-        }))
+        if(currentPrice || aromas || volumes || colors || forms) {
+ 
+          const [count, products] = await this.prismaService.$transaction([
+            this.prismaService.product.count({where: {
+              price: currentPrice && {
+                gte: Number(currentPrice.split(',')[0]),
+                lte: Number(currentPrice.split(',')[1])
+              },
+              aroma: aromas && {
+                in: aromas.split(',')
+              },
+              volume: volumes && {
+                in: volumes.split(',').map(volume => {
+                  return Number(volume)
+                })
+               
+              },
+              color: colors && {
+                in: colors.split(',')
+              },
+              form: forms && {
+                in: forms.split(',')
+              }
+              
+            },}),
+            this.prismaService.product.findMany({
+      
+            where: {
+              price: currentPrice && {
+                gte: Number(currentPrice.split(',')[0]),
+                lte: Number(currentPrice.split(',')[1])
+              },
+              aroma: aromas && {
+                in: aromas.split(',')
+              },
+              volume: volumes && {
+                in: volumes.split(',').map(volume => {
+                  return Number(volume)
+                })
+               
+              },
+              color: colors && {
+                in: colors.split(',')
+              },
+              form: forms && {
+                in: forms.split(',')
+              }
+              
+            },
+            orderBy: orderBy && {
+              price: orderBy
+            },
+            
+            skip: Number(currentPage) * Number(take) - Number(take),
+            take: Number(take),
+          }),
+        ])
+          return {
+            totalCount: count,
+            data: products
+          };
+        } else {
+          const [count, products] = await this.prismaService.$transaction([
+            this.prismaService.product.count(),
+            this.prismaService.product.findMany({
+              orderBy: orderBy && {
+                price: orderBy
+              },
+              skip: Number(currentPage) * Number(take) - Number(take),
+              take: Number(take),
+            
+            }),
+          ])
+          return {
+            totalCount: count,
+            data: products
+          };
+        }
+        }
 
-        return productsWidthAroma
+        async findTopProducts(){
+
+        const topProducts = this.prismaService.product.findMany({
+          where: {
+            top: true
+          }
+        })
         
-
-            return this.prismaService.product.findMany({
-                skip: 0,
-                take: 20,
-              })
+        return topProducts
         }
 
 
@@ -78,8 +154,7 @@ export class ProductsService {
               if(!product) {
                   return null
               }
-              const aromas = await this.prismaService.aroma.findMany({where: {productId: product.id}})
-              return {...product, aromas: aromas};
+              return product
           }
   
 
@@ -120,8 +195,7 @@ export class ProductsService {
           }))
         }
 
-        // product: Partial<Product>
-        async updateBody(product: any) {
+        async updateBody(product: Partial<Product>) {
           return from(this.prismaService.product.update({
             where: {
               id: product.id,
@@ -130,6 +204,7 @@ export class ProductsService {
               title: product.title,
               slug: product.slug,
               description: product.description,
+              form: product.form,
               volume: product.volume,
               price: product.price,
               color: product.color,
@@ -137,6 +212,8 @@ export class ProductsService {
               height: product.height,
               width: product.width,
               depth: product.depth,
+              aroma: product.aroma,
+              available: product.available,
               burningTime: product.burningTime,
               generalGroup: product.generalGroup,
               specifiedGroup: product.specifiedGroup,
@@ -145,25 +222,13 @@ export class ProductsService {
           }))
         }
 
-        async deleteAromaById (id:string) {
-          return this.prismaService.aroma.delete({where: {id: Number(id)}})
-        }
 
-        async updateAromaById (id, aroma) {
-          return this.prismaService.aroma.update({where: {id: Number(id)}, data: {
-            name: aroma.name,
-            count: aroma.count
+        async updateAvailableCount (id, data) {
+          return this.prismaService.product.update(
+            {where: {id: id}, data: {
+              available: data.available,
+     
           }})
-        }
-
-        async createAromaByProductId (productId, aroma) {
-          return this.prismaService.aroma.create({
-            data: {
-                name: aroma.name,
-                count: aroma.count,
-                productId: productId
-            }
-          })
         }
 
 
